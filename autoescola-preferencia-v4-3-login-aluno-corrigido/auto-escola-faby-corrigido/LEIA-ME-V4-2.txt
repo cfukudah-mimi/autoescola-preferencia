@@ -1,0 +1,19 @@
+AUTOESCOLA PREFERÊNCIA — V4.2
+
+NOVO NO PAINEL ONLINE:
+- Novo agendamento manual pela administração.
+- Validação de aluno ativo, instrutor ativo, veículo disponível.
+- Compatibilidade de categoria.
+- Limite de aulas futuras.
+- Conflitos de aluno, instrutor e veículo.
+- Aprovar/cancelar agendamentos.
+- Editar regras diretamente no painel:
+  limite de aulas futuras, aprovação manual/automática e intervalo.
+
+TESTE:
+1. Entre em Administração Online.
+2. Abra Agendamentos.
+3. Escolha aluno, data, horário, instrutor e veículo.
+4. Crie a aula.
+5. Confira no painel e no Supabase.
+6. Abra Regras, altere o limite e clique Salvar regras.
