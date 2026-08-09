@@ -1,0 +1,19 @@
+AUTOESCOLA PREFERÊNCIA — V3.2 ACESSOS PROTEGIDOS
+
+ADMINISTRADOR
+- Login e senha já existentes.
+
+INSTRUTOR
+- Login individual e senha.
+- Vê somente a própria agenda.
+
+ALUNO
+- Agora entra em Minhas Aulas com WhatsApp + senha.
+- Se o aluno ainda não existir no cadastro quando agenda, o protótipo cria o cadastro como Ativo com senha inicial 1234.
+- No painel administrativo, a autoescola pode editar a senha do aluno.
+- Status da matrícula: Ativo, Concluído ou Inativo.
+- Somente Ativo consegue entrar.
+- Ao mudar para Concluído ou Inativo, o acesso é bloqueado, mas cadastro, agendamentos e histórico permanecem salvos.
+
+IMPORTANTE
+Esta é segurança de protótipo/localStorage. Em produção, senhas devem ficar protegidas no servidor e o aluno idealmente terá verificação por código.
