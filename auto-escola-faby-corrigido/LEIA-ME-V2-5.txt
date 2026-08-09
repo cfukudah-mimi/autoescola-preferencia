@@ -1,0 +1,17 @@
+AUTOESCOLA PREFERÊNCIA — V2.5 TESTE COMPLETO
+
+1. Abra index.html.
+2. Entre em Agendar Aula — V2.5.
+3. Faça uma solicitação. Ela nasce como Pendente.
+4. Abra Painel Administrativo — V2.5.
+   Login: admin
+   Senha: 1234
+5. Aprove a solicitação.
+6. Abra Área do Instrutor e escolha o instrutor do agendamento.
+7. Marque a aula como Realizada ou Falta.
+8. Abra Minhas Aulas e consulte pelo mesmo WhatsApp informado.
+
+IMPORTANTE:
+- Esta versão ainda usa localStorage.
+- O teste precisa ser feito no mesmo navegador/origem.
+- Não é versão de produção e não possui segurança real de login.

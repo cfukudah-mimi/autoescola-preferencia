@@ -1,0 +1,122 @@
+<!doctype html><html lang="pt-br"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agendamento Inteligente V3</title><style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f6f8;color:#172033}
+header{background:#0b132b;color:#fff;padding:16px 18px}
+.top{max-width:1180px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:12px}
+main{max-width:1180px;margin:20px auto;padding:0 15px}
+.panel,.card{background:#fff;border-radius:15px;padding:18px;box-shadow:0 3px 14px #00000010;margin-bottom:15px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.card b{display:block;font-size:29px;margin-top:6px}
+h1,h2,h3{margin-top:0}
+.nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px}
+button,.btn{border:0;border-radius:9px;padding:10px 13px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
+.primary{background:#0b132b;color:#fff}.green{background:#25D366;color:#fff}.orange{background:#ff7a00;color:#fff}
+.danger{background:#ffe8e8;color:#b42318}.light{background:#eef2f6;color:#172033}.blue{background:#e8f0ff;color:#174ea6}
+input,select,textarea{width:100%;padding:11px;border:1px solid #d0d5dd;border-radius:9px;background:#fff}
+label{font-size:13px;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.full{grid-column:1/-1}
+table{width:100%;border-collapse:collapse}th,td{padding:10px 8px;border-bottom:1px solid #eee;text-align:left;font-size:14px;vertical-align:top}
+th{color:#667085;font-size:12px}
+.badge{display:inline-block;padding:5px 8px;border-radius:18px;font-size:12px;font-weight:700}
+.pendente{background:#fff3cd;color:#7a5b00}.confirmada{background:#dff5e7;color:#15723a}.realizada{background:#e5eeff;color:#1c4f9c}.cancelada,.falta{background:#ffe7e7;color:#a51d1d}.remarcacao{background:#efe7ff;color:#5f2d91}
+.muted{color:#667085}.hidden{display:none}.notice{padding:12px;border-radius:10px;margin:12px 0;background:#eef5ff}
+.warn{background:#fff4e5;color:#8a4b00;padding:12px;border-radius:10px}
+.ok{background:#e8f7ed;color:#147a35;padding:12px;border-radius:10px}
+@media(max-width:800px){.cards{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.full{grid-column:auto}table{display:block;overflow:auto}}
+</style></head><body>
+<header><div class="top"><strong>🚗 Autoescola Preferência — Agendamento V3</strong><a class="btn light" href="index.html">Voltar</a></div></header>
+<main><div class="panel"><h1>📅 Agendamento Inteligente</h1><p class="muted">Agora o sistema também respeita bloqueios de instrutores e veículos.</p>
+<div class="grid"><label>Nome<input id="nome"></label><label>WhatsApp<input id="telefone"></label>
+<label>Categoria<select id="categoria"><option>B</option><option>A</option><option>AB</option></select></label>
+<label>Tipo<select id="tipo"><option>Aula prática</option><option>Reposição</option><option>Preparação para exame</option></select></label>
+<label>Data<input id="data" type="date"></label><label>Preferência<select id="periodo"><option value="todos">Qualquer horário</option><option value="manha">Manhã</option><option value="tarde">Tarde</option></select></label>
+<button class="primary full" onclick="buscar()">🔎 Encontrar horários</button></div></div>
+<div class="panel"><h2>⭐ Opções</h2><div id="opcoes" class="muted">Preencha os dados.</div></div><div id="msg" class="panel hidden"></div>
+</main><script>
+const DB = {
+  get(key, fallback=[]) {
+    try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); }
+    catch(e) { return fallback; }
+  },
+  set(key, value) { localStorage.setItem(key, JSON.stringify(value)); },
+  log(acao, detalhe) {
+    const h=this.get('historico_autoescola',[]);
+    h.unshift({id:Date.now()+Math.random(),quando:new Date().toISOString(),acao,detalhe});
+    this.set('historico_autoescola',h.slice(0,300));
+  },
+  init() {
+    if (!localStorage.getItem('instrutores_autoescola')) this.set('instrutores_autoescola', [
+      {id:101,nome:'Carlos',telefone:'',categorias:['B','AB'],inicio:'08:00',fim:'18:00',ativo:true},
+      {id:102,nome:'Paulo',telefone:'',categorias:['A','B','AB'],inicio:'08:00',fim:'18:00',ativo:true}
+    ]);
+    if (!localStorage.getItem('veiculos_autoescola')) this.set('veiculos_autoescola', [
+      {id:201,modelo:'HB20',identificacao:'Veículo 01',categoria:'B',status:'Disponível'},
+      {id:202,modelo:'Onix',identificacao:'Veículo 02',categoria:'B',status:'Disponível'},
+      {id:203,modelo:'Moto',identificacao:'Moto 01',categoria:'A',status:'Disponível'}
+    ]);
+    if (!localStorage.getItem('regras_autoescola')) this.set('regras_autoescola',{maxFuturas:2,aprovacao:'manual',intervalo:60});
+    if (!localStorage.getItem('bloqueios_instrutores')) this.set('bloqueios_instrutores',[]);
+    if (!localStorage.getItem('bloqueios_veiculos')) this.set('bloqueios_veiculos',[]);
+    if (!localStorage.getItem('historico_autoescola')) this.set('historico_autoescola',[]);
+    if (!localStorage.getItem('agendamentos_autoescola')) {
+      const antigos=this.get('reservas_autoescola',[]);
+      this.set('agendamentos_autoescola', antigos.map((x,i)=>({
+        id:x.id||Date.now()+i,nome:x.nome,telefone:x.tel||x.telefone||'',categoria:x.cat||x.categoria||'B',
+        tipo:x.tipo||'Aula prática',data:x.data,horario:x.hora||x.horario,instrutor:x.instrutor||'Carlos',
+        veiculo:x.veiculo||'HB20',status:x.status||'Confirmada',criadoEm:new Date().toISOString()
+      })));
+    }
+  }
+};
+DB.init();
+function esc(v=''){return String(v).replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]))}
+function brDate(iso=''){if(!iso)return'';const [y,m,d]=iso.split('-');return `${d}/${m}/${y}`}
+function brDateTime(iso=''){try{return new Date(iso).toLocaleString('pt-BR')}catch(e){return iso}}
+function overlaps(hora,inicio,fim){return hora>=inicio && hora<fim}
+
+let opcoesAtuais=[];const hoje=new Date();hoje.setMinutes(hoje.getMinutes()-hoje.getTimezoneOffset());data.min=hoje.toISOString().slice(0,10);data.value=data.min;
+function categoriaCompativel(lista,cat){return Array.isArray(lista)?(lista.includes(cat)||(cat==='B'&&lista.includes('AB'))):String(lista||'').includes(cat)}
+function horarios(inicio='08:00',fim='18:00'){let r=[];for(let h=parseInt(inicio);h<parseInt(fim);h++)r.push(String(h).padStart(2,'0')+':00');return r}
+function bloqueadoInstrutor(nome,dt,h){return DB.get('bloqueios_instrutores',[]).some(b=>b.instrutor===nome&&b.data===dt&&overlaps(h,b.inicio,b.fim))}
+function bloqueadoVeiculo(nome,dt,h){return DB.get('bloqueios_veiculos',[]).some(b=>b.veiculo===nome&&b.data===dt&&overlaps(h,b.inicio,b.fim))}
+
+function conflitoDetalhado(ag, dt, h, instrutor, veiculo, telefoneAluno){
+  const ativos=ag.filter(a=>a.data===dt && a.horario===h && ['Pendente','Confirmada'].includes(a.status));
+  if(ativos.some(a=>a.instrutor===instrutor)) return 'Instrutor já ocupado';
+  if(ativos.some(a=>a.veiculo===veiculo)) return 'Veículo já ocupado';
+  if(ativos.some(a=>String(a.telefone||'').replace(/\D/g,'')===String(telefoneAluno||'').replace(/\D/g,''))) return 'Aluno já possui aula nesse horário';
+  return '';
+}
+function alunoTemAulaNoDia(ag, dt, telefoneAluno){
+  const nt=String(telefoneAluno||'').replace(/\D/g,'');
+  return ag.some(a=>a.data===dt && ['Pendente','Confirmada'].includes(a.status) && String(a.telefone||'').replace(/\D/g,'')===nt);
+}
+
+function buscar(){
+ const cat=categoria.value,dt=data.value,per=periodo.value,ag=DB.get('agendamentos_autoescola',[]);
+ if(!nome.value.trim()||!telefone.value.trim()||!dt){opcoes.innerHTML='<span style="color:#b42318">Preencha nome, WhatsApp e data.</span>';return}
+ const avisoMesmoDia=alunoTemAulaNoDia(ag,dt,telefone.value.trim());
+ const regras=DB.get('regras_autoescola',{maxFuturas:2,aprovacao:'manual'});
+ const futuras=ag.filter(a=>a.telefone===telefone.value.trim()&&['Pendente','Confirmada'].includes(a.status)&&a.data>=hoje.toISOString().slice(0,10));
+ if(futuras.length>=Number(regras.maxFuturas||2)){opcoes.innerHTML='<span style="color:#b42318">Limite de aulas futuras atingido. Você já possui o número máximo de aulas Pendentes/Confirmadas permitido pela autoescola.</span>';return}
+ const ins=DB.get('instrutores_autoescola',[]).filter(i=>i.ativo!==false&&categoriaCompativel(i.categorias,cat));
+ const ves=DB.get('veiculos_autoescola',[]).filter(v=>v.status==='Disponível'&&(v.categoria===cat||(cat==='AB'&&['A','B','AB'].includes(v.categoria))));
+ const c=[];ins.forEach(i=>horarios(i.inicio,i.fim).forEach(h=>{if(per==='manha'&&parseInt(h)>=12)return;if(per==='tarde'&&parseInt(h)<12)return;if(bloqueadoInstrutor(i.nome,dt,h))return;ves.forEach(v=>{if(bloqueadoVeiculo(v.modelo,dt,h))return;const conflito=conflitoDetalhado(ag,dt,h,i.nome,v.modelo,telefone.value.trim());if(!conflito)c.push({horario:h,instrutor:i.nome,veiculo:v.modelo})})}));
+ opcoesAtuais=c.slice(0,6);opcoes.innerHTML=(avisoMesmoDia?'<div class="warn">⚠️ Este aluno já possui uma aula neste dia. O sistema ainda permite outro horário para teste, mas impede conflito no mesmo horário.</div>':'') + (opcoesAtuais.length?opcoesAtuais.map((o,i)=>`<div class="notice"><b>${i===0?'🥇 Melhor opção':'Opção '+(i+1)}</b><br>${brDate(dt)} às <b>${o.horario}</b> — ${esc(o.instrutor)} — ${esc(o.veiculo)}<br><br><button class="green" onclick="solicitar(${i})">Solicitar</button></div>`).join(''):'<span style="color:#b42318">Nenhum horário disponível. Tente outra data/período.</span>');
+}
+
+function garantirAlunoCadastro(){
+ let alunos=DB.get('alunos_autoescola',[]);
+ const nt=String(telefone.value).replace(/\D/g,'');
+ let a=alunos.find(x=>String(x.telefone||'').replace(/\D/g,'')===nt);
+ if(!a){
+   a={id:Date.now()+7,nome:nome.value.trim(),telefone:telefone.value.trim(),categoria:categoria.value,senha:'1234',status:'Ativo'};
+   alunos.push(a);DB.set('alunos_autoescola',alunos);
+   if(DB.log)DB.log('Aluno criado pelo agendamento',a.nome+' — senha inicial 1234');
+ }
+ return a;
+}
+
+function solicitar(i){const o=opcoesAtuais[i];garantirAlunoCadastro();if(!o)return;const regras=DB.get('regras_autoescola',{aprovacao:'manual'}),ag=DB.get('agendamentos_autoescola',[]);const status=regras.aprovacao==='automatico'?'Confirmada':'Pendente';const x={id:Date.now(),nome:nome.value.trim(),telefone:telefone.value.trim(),categoria:categoria.value,tipo:tipo.value,data:data.value,horario:o.horario,instrutor:o.instrutor,veiculo:o.veiculo,status,criadoEm:new Date().toISOString()};ag.push(x);DB.set('agendamentos_autoescola',ag);DB.log('Nova solicitação',`${x.nome} — ${x.data} ${x.horario} — ${x.status}`);msg.classList.remove('hidden');msg.innerHTML=`<h2>${status==='Confirmada'?'🟢 Aula confirmada':'🟡 Solicitação pendente'}</h2><p>${brDate(x.data)} às ${x.horario} — ${esc(x.instrutor)} — ${esc(x.veiculo)}</p>`;opcoes.innerHTML='Solicitação registrada.'}
+</script></body></html>
