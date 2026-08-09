@@ -1,0 +1,107 @@
+<!doctype html><html lang="pt-br"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Minhas Aulas</title><style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f6f8;color:#172033}
+header{background:#0b132b;color:#fff;padding:16px 18px}
+.top{max-width:1180px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:12px}
+main{max-width:1180px;margin:20px auto;padding:0 15px}
+.panel,.card{background:#fff;border-radius:15px;padding:18px;box-shadow:0 3px 14px #00000010;margin-bottom:15px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.card b{display:block;font-size:29px;margin-top:6px}
+h1,h2,h3{margin-top:0}
+.nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px}
+button,.btn{border:0;border-radius:9px;padding:10px 13px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
+.primary{background:#0b132b;color:#fff}.green{background:#25D366;color:#fff}.orange{background:#ff7a00;color:#fff}
+.danger{background:#ffe8e8;color:#b42318}.light{background:#eef2f6;color:#172033}
+input,select{width:100%;padding:11px;border:1px solid #d0d5dd;border-radius:9px;background:#fff}
+label{font-size:13px;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.full{grid-column:1/-1}
+table{width:100%;border-collapse:collapse}th,td{padding:10px 8px;border-bottom:1px solid #eee;text-align:left;font-size:14px}
+th{color:#667085;font-size:12px}
+.badge{display:inline-block;padding:5px 8px;border-radius:18px;font-size:12px;font-weight:700}
+.pendente{background:#fff3cd;color:#7a5b00}.confirmada{background:#dff5e7;color:#15723a}.realizada{background:#e5eeff;color:#1c4f9c}.cancelada,.falta{background:#ffe7e7;color:#a51d1d}
+.muted{color:#667085}.hidden{display:none}.notice{padding:12px;border-radius:10px;margin:12px 0;background:#eef5ff}
+@media(max-width:800px){.cards{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.full{grid-column:auto}table{display:block;overflow:auto}}
+</style></head>
+<body><header><div class="top"><strong>📚 Área do Aluno</strong><a class="btn light" href="index.html">Voltar</a></div></header>
+<main>
+<div id="loginAluno" class="panel" style="max-width:480px;margin:20px auto">
+<h2>🔐 Entrar em Minhas Aulas</h2><p class="muted">Use o WhatsApp cadastrado na autoescola e sua senha.</p>
+<label>WhatsApp<input id="tel" placeholder="Mesmo número cadastrado"></label><br><br>
+<label>Senha<input id="senhaAluno" type="password" placeholder="Sua senha"></label><br><br>
+<button class="primary" onclick="entrarAluno()">Entrar</button><p id="erroAluno" style="color:#b42318"></p>
+</div>
+<div id="areaAluno" class="hidden">
+<div class="panel"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><div><h2 style="margin-bottom:4px">Olá, <span id="nomeAluno"></span></h2><span class="muted">Seus agendamentos e histórico</span></div><button class="light" onclick="sairAluno()">Sair</button></div></div>
+<div class="panel" id="resultado"></div>
+</div></main>
+<script>
+const DB = {
+  get(key, fallback=[]) {
+    try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); }
+    catch(e) { return fallback; }
+  },
+  set(key, value) { localStorage.setItem(key, JSON.stringify(value)); },
+  init() {
+    if (!localStorage.getItem('instrutores_autoescola')) {
+      this.set('instrutores_autoescola', [
+        {id:101,nome:'Carlos',telefone:'',categorias:['B','AB'],inicio:'08:00',fim:'18:00',ativo:true},
+        {id:102,nome:'Paulo',telefone:'',categorias:['A','B','AB'],inicio:'08:00',fim:'18:00',ativo:true}
+      ]);
+    }
+    if (!localStorage.getItem('veiculos_autoescola')) {
+      this.set('veiculos_autoescola', [
+        {id:201,modelo:'HB20',identificacao:'Veículo 01',categoria:'B',status:'Disponível'},
+        {id:202,modelo:'Onix',identificacao:'Veículo 02',categoria:'B',status:'Disponível'},
+        {id:203,modelo:'Moto',identificacao:'Moto 01',categoria:'A',status:'Disponível'}
+      ]);
+    }
+    if (!localStorage.getItem('regras_autoescola')) {
+      this.set('regras_autoescola', {maxFuturas:2,aprovacao:'manual',intervalo:60});
+    }
+    if (!localStorage.getItem('agendamentos_autoescola')) {
+      const antigos = this.get('reservas_autoescola', []);
+      const convertidos = antigos.map((x,i)=>({
+        id:x.id || Date.now()+i,
+        nome:x.nome, telefone:x.tel || x.telefone || '',
+        categoria:x.cat || x.categoria || 'B',
+        tipo:x.tipo || 'Aula prática', data:x.data, horario:x.hora || x.horario,
+        instrutor:x.instrutor || 'Carlos', veiculo:x.veiculo || 'HB20',
+        status:x.status || 'Confirmada', criadoEm:new Date().toISOString()
+      }));
+      this.set('agendamentos_autoescola', convertidos);
+    }
+  }
+};
+DB.init();
+
+function esc(v='') {
+  return String(v).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+}
+function brDate(iso='') {
+  if (!iso) return '';
+  const [y,m,d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+
+function normTel(v=''){return String(v).replace(/\D/g,'')}
+function entrarAluno(){
+ const alunos=DB.get('alunos_autoescola',[]);
+ const a=alunos.find(x=>normTel(x.telefone)===normTel(tel.value)&&String(x.senha||'1234')===senhaAluno.value);
+ if(!a){erroAluno.textContent='WhatsApp ou senha inválidos.';return}
+ if((a.status||'Ativo')!=='Ativo'){erroAluno.textContent='Seu acesso está encerrado. Entre em contato com a autoescola se precisar consultar informações.';return}
+ sessionStorage.setItem('alunoSessao',JSON.stringify({id:a.id,nome:a.nome,telefone:a.telefone}));abrirAluno()
+}
+function sairAluno(){sessionStorage.removeItem('alunoSessao');location.href='index.html'}
+function sessaoAluno(){try{return JSON.parse(sessionStorage.getItem('alunoSessao')||'null')}catch(e){return null}}
+function abrirAluno(){
+ const ss=sessaoAluno();if(!ss)return;
+ const atual=DB.get('alunos_autoescola',[]).find(x=>x.id===ss.id);
+ if(!atual||(atual.status||'Ativo')!=='Ativo'){sessionStorage.removeItem('alunoSessao');return}
+ loginAluno.classList.add('hidden');areaAluno.classList.remove('hidden');nomeAluno.textContent=atual.nome;
+ const ag=DB.get('agendamentos_autoescola',[]).filter(x=>normTel(x.telefone)===normTel(atual.telefone));
+ resultado.innerHTML=ag.length?`<table><tr><th>Data</th><th>Horário</th><th>Instrutor</th><th>Veículo</th><th>Status</th></tr>${ag.sort((x,y)=>(x.data+x.horario).localeCompare(y.data+y.horario)).map(x=>`<tr><td>${brDate(x.data)}</td><td>${x.horario}</td><td>${esc(x.instrutor)}</td><td>${esc(x.veiculo)}</td><td><span class="badge ${String(x.status).toLowerCase()}">${esc(x.status)}</span></td></tr>`).join('')}</table>`:'<p class="muted">Nenhuma aula encontrada.</p>';
+}
+if(sessaoAluno())abrirAluno();
+</script></body></html>
