@@ -1,0 +1,22 @@
+AUTOESCOLA PREFERÊNCIA — V4.3.2 — ÁREA DO INSTRUTOR ONLINE
+
+CORREÇÕES:
+- Login do instrutor usa Supabase.
+- Usuário = primeiro nome em minúsculas (faby / taty).
+- Senha é validada na coluna public.instrutores.senha.
+- Só aceita instrutor com status Ativo.
+- Cada instrutor vê somente as próprias aulas.
+- Exibe aluno, data, horário, veículo, tipo e status.
+- Instrutor pode marcar aula Confirmada como Realizada ou Falta.
+
+ANTES DE TESTAR:
+1. Abra Supabase > SQL Editor.
+2. Execute todo o arquivo CORRECAO-INSTRUTOR.sql.
+3. Depois teste instrutor.html.
+
+TESTE:
+Faby: usuário faby / senha 1234
+Taty: usuário taty / senha 1234
+
+IMPORTANTE:
+O ZIP foi montado com os arquivos DIRETAMENTE NA RAIZ para facilitar o upload no GitHub Pages.

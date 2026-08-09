@@ -1,0 +1,31 @@
+AUTOESCOLA PREFERÊNCIA — FINAL
+
+VERSÃO ESTÁVEL CONSOLIDADA
+
+FUNCIONANDO:
+- Site principal
+- Agendamento online
+- Supabase
+- Cadastro de alunos
+- Área Minhas Aulas
+- Login do aluno
+- Área do Instrutor
+- Login dos instrutores
+- Agenda individual por instrutor
+- Status Realizada / Falta
+- Painel Administrativo Online
+- Aprovação manual
+- Cancelamento
+- WhatsApp ao confirmar
+- WhatsApp ao cancelar
+- Mensagens limpas, sem caracteres estranhos
+
+IMPORTANTE PARA O GITHUB PAGES:
+1. Extraia este ZIP.
+2. Abra a pasta FINAL.
+3. Selecione OS ARQUIVOS DE DENTRO.
+4. Envie diretamente para a RAIZ do repositório.
+5. O index.html deve aparecer diretamente na página principal do GitHub.
+
+BASE OFICIAL A PARTIR DE AGORA:
+FINAL

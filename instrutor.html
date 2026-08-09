@@ -1,12 +1,5 @@
-<!doctype html>
-<html lang="pt-br">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Área do Instrutor</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
+<!doctype html><html lang="pt-br"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Área do Instrutor</title><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f6f8;color:#172033}
@@ -14,552 +7,182 @@ header{background:#0b132b;color:#fff;padding:16px 18px}
 .top{max-width:1180px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:12px}
 main{max-width:1180px;margin:20px auto;padding:0 15px}
 .panel,.card{background:#fff;border-radius:15px;padding:18px;box-shadow:0 3px 14px #00000010;margin-bottom:15px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.card b{display:block;font-size:29px;margin-top:6px}
 h1,h2,h3{margin-top:0}
-
-button,.btn{
-  border:0;
-  border-radius:9px;
-  padding:10px 13px;
-  font-weight:700;
-  cursor:pointer;
-  text-decoration:none;
-  display:inline-block
-}
-
-.primary{background:#0b132b;color:#fff}
-.green{background:#25D366;color:#fff}
-.danger{background:#ffe8e8;color:#b42318}
-.light{background:#eef2f6;color:#172033}
-
-input{
-  width:100%;
-  padding:11px;
-  border:1px solid #d0d5dd;
-  border-radius:9px;
-  background:#fff
-}
-
+.nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px}
+button,.btn{border:0;border-radius:9px;padding:10px 13px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
+.primary{background:#0b132b;color:#fff}.green{background:#25D366;color:#fff}.orange{background:#ff7a00;color:#fff}
+.danger{background:#ffe8e8;color:#b42318}.light{background:#eef2f6;color:#172033}
+input,select{width:100%;padding:11px;border:1px solid #d0d5dd;border-radius:9px;background:#fff}
 label{font-size:13px;font-weight:700}
-
-table{width:100%;border-collapse:collapse}
-th,td{
-  padding:10px 8px;
-  border-bottom:1px solid #eee;
-  text-align:left;
-  font-size:14px
-}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.full{grid-column:1/-1}
+table{width:100%;border-collapse:collapse}th,td{padding:10px 8px;border-bottom:1px solid #eee;text-align:left;font-size:14px}
 th{color:#667085;font-size:12px}
+.badge{display:inline-block;padding:5px 8px;border-radius:18px;font-size:12px;font-weight:700}
+.pendente{background:#fff3cd;color:#7a5b00}.confirmada{background:#dff5e7;color:#15723a}.realizada{background:#e5eeff;color:#1c4f9c}.cancelada,.falta{background:#ffe7e7;color:#a51d1d}
+.muted{color:#667085}.hidden{display:none}.notice{padding:12px;border-radius:10px;margin:12px 0;background:#eef5ff}
+@media(max-width:800px){.cards{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.full{grid-column:auto}table{display:block;overflow:auto}}
 
-.badge{
-  display:inline-block;
-  padding:5px 8px;
-  border-radius:18px;
-  font-size:12px;
-  font-weight:700
-}
-
-.pendente{background:#fff3cd;color:#7a5b00}
-.confirmada{background:#dff5e7;color:#15723a}
-.realizada{background:#e5eeff;color:#1c4f9c}
-.cancelada,.falta{background:#ffe7e7;color:#a51d1d}
-
-.muted{color:#667085}
-.hidden{display:none}
-
-.notice{
-  padding:12px;
-  border-radius:10px;
-  margin:12px 0;
-  background:#eef5ff
-}
-
-.login-wrap{
-  max-width:430px;
-  margin:55px auto;
-  padding:0 15px
-}
-
-.login-note{
-  font-size:13px;
-  color:#667085;
-  margin-top:12px
-}
-
-@media(max-width:800px){
-  table{display:block;overflow:auto}
-}
-</style>
-</head>
-
-<body>
+.login-wrap{max-width:430px;margin:55px auto;padding:0 15px}
+.login-note{font-size:13px;color:#667085;margin-top:12px}
+</style></head><body>
 
 <div id="loginInstrutor" class="login-wrap">
   <div class="panel">
-
     <h2>👨‍🏫 Acesso do Instrutor</h2>
-
-    <p class="muted">
-      Entre com seu usuário e senha para visualizar somente a sua agenda.
-    </p>
-
-    <label>
-      Usuário
-      <input
-        id="loginUsuario"
-        autocomplete="username"
-        placeholder="Ex.: faby">
-    </label>
-
-    <br><br>
-
-    <label>
-      Senha
-      <input
-        id="loginSenha"
-        type="password"
-        autocomplete="current-password"
-        placeholder="Sua senha">
-    </label>
-
-    <br><br>
-
-    <button class="primary" onclick="entrarInstrutor()">
-      Entrar
-    </button>
-
+    <p class="muted">Entre com seu usuário e senha para visualizar somente a sua agenda.</p>
+    <label>Usuário<input id="loginUsuario" autocomplete="username" placeholder="Seu usuário"></label><br><br>
+    <label>Senha<input id="loginSenha" type="password" autocomplete="current-password" placeholder="Sua senha"></label><br><br>
+    <button class="primary" onclick="entrarInstrutor()">Entrar</button>
     <p id="loginErro" style="color:#b42318"></p>
-
-    <p class="login-note">
-      Use o primeiro nome do instrutor em letras minúsculas e a senha cadastrada pela autoescola.
-    </p>
-
-    <a class="btn light" href="index.html">
-      Voltar ao site
-    </a>
-
+    <p class="login-note">Use o primeiro nome do instrutor em letras minúsculas e a senha cadastrada pela autoescola.</p>
+    <a class="btn light" href="index.html">Voltar ao site</a>
   </div>
 </div>
 
-
 <div id="areaInstrutor" class="hidden">
-
-<header>
-  <div class="top">
-
-    <strong>
-      👨‍🏫 Área do Instrutor —
-      <span id="nomeLogado"></span>
-    </strong>
-
-    <div>
-      <a class="btn light" href="index.html">Site</a>
-      <button onclick="sairInstrutor()">Sair</button>
-    </div>
-
-  </div>
-</header>
-
+<header><div class="top"><strong>👨‍🏫 Área do Instrutor — <span id="nomeLogado"></span></strong>
+<div><a class="btn light" href="index.html">Site</a> <button onclick="sairInstrutor()">Sair</button></div></div></header>
 <main>
-
   <div class="panel">
     <h2>Minha agenda</h2>
-    <p class="muted">
-      Aqui aparecem somente as aulas atribuídas a você.
-    </p>
+    <p class="muted">Aqui aparecem somente as aulas atribuídas a você.</p>
   </div>
-
   <div class="panel" id="lista"></div>
-
 </main>
 </div>
 
 
 <script>
+const SUPABASE_URL = 'https://tstxaoxhgdrtdxrnxqiz.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_MsvCYm5hhlJkavmyF-hfyA_i5W48a_P';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const SUPABASE_URL =
-'https://tstxaoxhgdrtdxrnxqiz.supabase.co';
-
-const SUPABASE_KEY =
-'sb_publishable_MsvCYm5hhlJkavmyF-hfyA_i5W48a_P';
-
-const sb = supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
-
-const $ = id =>
-  document.getElementById(id);
-
-const esc = (s='') =>
-  String(s).replace(
-    /[&<>"']/g,
-    c => ({
-      '&':'&amp;',
-      '<':'&lt;',
-      '>':'&gt;',
-      '"':'&quot;',
-      "'":'&#39;'
-    }[c])
-  );
-
-const norm = (v='') =>
-  String(v)
-  .normalize('NFD')
-  .replace(/[\u0300-\u036f]/g,'')
-  .toLowerCase()
-  .trim();
-
+const $ = id => document.getElementById(id);
+const esc = (s='') => String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm = (v='') => String(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
 
 function brDate(iso=''){
-
   if(!iso) return '';
-
-  const [y,m,d] =
-    String(iso).split('-');
-
-  return d && m && y
-    ? `${d}/${m}/${y}`
-    : iso;
+  const [y,m,d] = String(iso).split('-');
+  return d && m && y ? `${d}/${m}/${y}` : iso;
 }
-
 
 function badge(s=''){
-
-  return `
-    <span class="badge ${String(s).toLowerCase()}">
-      ${esc(s)}
-    </span>
-  `;
+  return `<span class="badge ${String(s).toLowerCase()}">${esc(s)}</span>`;
 }
 
-
 async function entrarInstrutor(){
-
-  const usuario =
-    norm($('loginUsuario').value);
-
-  const senha =
-    $('loginSenha').value || '';
-
+  const usuario = norm($('loginUsuario').value);
+  const senha = $('loginSenha').value || '';
   $('loginErro').textContent = '';
 
   if(!usuario || !senha){
-
-    $('loginErro').textContent =
-      'Informe usuário e senha.';
-
+    $('loginErro').textContent = 'Informe usuário e senha.';
     return;
   }
 
-
-  const {
-    data: retorno,
-    error
-  } = await sb.rpc(
-    'validar_login_instrutor',
-    {
-      p_usuario: usuario,
-      p_senha: senha
-    }
-  );
-
+  const {data: retorno, error} = await sb.rpc('validar_login_instrutor', {
+    p_usuario: usuario,
+    p_senha: senha
+  });
 
   if(error){
-
-    $('loginErro').textContent =
-      'Erro ao validar acesso: '
-      + error.message;
-
+    $('loginErro').textContent = 'Erro ao validar acesso: ' + error.message;
     return;
   }
 
-
-  const instrutor =
-    Array.isArray(retorno)
-    ? retorno[0]
-    : retorno;
-
-
+  const instrutor = Array.isArray(retorno) ? retorno[0] : retorno;
   if(!instrutor){
-
-    $('loginErro').textContent =
-      'Usuário ou senha inválidos.';
-
+    $('loginErro').textContent = 'Usuário ou senha inválidos.';
     return;
   }
 
-
-  sessionStorage.setItem(
-    'instrutor_online_id',
-    instrutor.id
-  );
-
-  sessionStorage.setItem(
-    'instrutor_online_nome',
-    instrutor.nome || 'Instrutor'
-  );
-
+  sessionStorage.setItem('instrutor_online_id', instrutor.id);
+  sessionStorage.setItem('instrutor_online_nome', instrutor.nome || 'Instrutor');
 
   abrirArea(instrutor);
 }
 
-
 function sairInstrutor(){
-
-  sessionStorage.removeItem(
-    'instrutor_online_id'
-  );
-
-  sessionStorage.removeItem(
-    'instrutor_online_nome'
-  );
-
+  sessionStorage.removeItem('instrutor_online_id');
+  sessionStorage.removeItem('instrutor_online_nome');
   location.reload();
 }
 
-
 async function carregarAgenda(instrutor){
-
   const box = $('lista');
+  box.innerHTML = '<p class="muted">Carregando sua agenda...</p>';
 
-  box.innerHTML =
-    '<p class="muted">Carregando sua agenda...</p>';
-
-
-  const {
-    data,
-    error
-  } = await sb.rpc(
-    'listar_aulas_instrutor',
-    {
-      p_instrutor_id: instrutor.id
-    }
-  );
-
+  const {data, error} = await sb.rpc('listar_aulas_instrutor', {
+    p_instrutor_id: instrutor.id
+  });
 
   if(error){
-
-    box.innerHTML =
-      '<div class="notice">'
-      + 'Erro ao carregar agenda: '
-      + esc(error.message)
-      + '</div>';
-
+    box.innerHTML = '<div class="notice">Erro ao carregar agenda: ' + esc(error.message) + '</div>';
     return;
   }
-
 
   if(!data || data.length === 0){
-
-    box.innerHTML =
-      '<p class="muted">'
-      + 'Nenhuma aula atribuída a você.'
-      + '</p>';
-
+    box.innerHTML = '<p class="muted">Nenhuma aula atribuída a você.</p>';
     return;
   }
 
-
-  box.innerHTML = `
-
-  <table>
-
-  <tr>
-    <th>Data</th>
-    <th>Horário</th>
-    <th>Aluno</th>
-    <th>Veículo</th>
-    <th>Tipo</th>
-    <th>Status</th>
-    <th>Ações</th>
-  </tr>
-
-  ${data.map(a => `
-
-  <tr>
-
-    <td>
-      ${esc(brDate(a.data))}
-    </td>
-
-    <td>
-      ${esc(
-        String(a.horario || '')
-        .slice(0,5)
-      )}
-    </td>
-
-    <td>
-      ${esc(a.aluno_nome || '')}
-    </td>
-
-    <td>
-      ${esc(a.veiculo_nome || '')}
-    </td>
-
-    <td>
-      ${esc(a.tipo || '')}
-    </td>
-
-    <td>
-      ${badge(a.status || '')}
-    </td>
-
-    <td>
-
-    ${
-      a.status === 'Confirmada'
-      ?
-      `
-      <button
-        class="green"
-        onclick="mudarStatus(
-          '${a.id}',
-          'Realizada'
-        )">
-
-        ✅ Realizada
-
-      </button>
-
-      <button
-        class="danger"
-        onclick="mudarStatus(
-          '${a.id}',
-          'Falta'
-        )">
-
-        Falta
-
-      </button>
-      `
-      :
-      ''
-    }
-
-    </td>
-
-  </tr>
-
-  `).join('')}
-
-  </table>
-
-  `;
+  box.innerHTML = `<table>
+    <tr><th>Data</th><th>Horário</th><th>Aluno</th><th>Veículo</th><th>Tipo</th><th>Status</th><th>Ações</th></tr>
+    ${data.map(a => `<tr>
+      <td>${esc(brDate(a.data))}</td>
+      <td>${esc(String(a.horario||'').slice(0,5))}</td>
+      <td>${esc(a.aluno_nome||'')}</td>
+      <td>${esc(a.veiculo_nome||'')}</td>
+      <td>${esc(a.tipo||'')}</td>
+      <td>${badge(a.status||'')}</td>
+      <td>${a.status === 'Confirmada'
+        ? `<button class="green" onclick="mudarStatus('${a.id}','Realizada')">✅ Realizada</button>
+           <button class="danger" onclick="mudarStatus('${a.id}','Falta')">Falta</button>`
+        : ''}</td>
+    </tr>`).join('')}
+  </table>`;
 }
 
+async function mudarStatus(agendamentoId, novoStatus){
+  const instrutorId = sessionStorage.getItem('instrutor_online_id');
+  if(!instrutorId) return;
 
-async function mudarStatus(
-  agendamentoId,
-  novoStatus
-){
-
-  const instrutorId =
-    sessionStorage.getItem(
-      'instrutor_online_id'
-    );
-
-
-  if(!instrutorId)
-    return;
-
-
-  const {
-    error
-  } = await sb.rpc(
-    'atualizar_status_aula_instrutor',
-    {
-      p_instrutor_id:
-        instrutorId,
-
-      p_agendamento_id:
-        agendamentoId,
-
-      p_status:
-        novoStatus
-    }
-  );
-
+  const {data, error} = await sb.rpc('atualizar_status_aula_instrutor', {
+    p_instrutor_id: instrutorId,
+    p_agendamento_id: agendamentoId,
+    p_status: novoStatus
+  });
 
   if(error){
-
-    alert(
-      'Erro ao atualizar aula: '
-      + error.message
-    );
-
+    alert('Erro ao atualizar aula: ' + error.message);
     return;
   }
 
-
   const instrutor = {
-
     id: instrutorId,
-
-    nome:
-      sessionStorage.getItem(
-        'instrutor_online_nome'
-      )
-      || 'Instrutor'
-
+    nome: sessionStorage.getItem('instrutor_online_nome') || 'Instrutor'
   };
-
-
   await carregarAgenda(instrutor);
 }
-
 
 async function abrirArea(instrutor){
-
-  $('loginInstrutor')
-    .classList
-    .add('hidden');
-
-
-  $('areaInstrutor')
-    .classList
-    .remove('hidden');
-
-
-  $('nomeLogado').textContent =
-    instrutor.nome
-    || 'Instrutor';
-
-
+  $('loginInstrutor').classList.add('hidden');
+  $('areaInstrutor').classList.remove('hidden');
+  $('nomeLogado').textContent = instrutor.nome || 'Instrutor';
   await carregarAgenda(instrutor);
 }
 
-
 (async()=>{
-
-  const id =
-    sessionStorage.getItem(
-      'instrutor_online_id'
-    );
-
-
-  if(!id)
-    return;
-
-
+  const id = sessionStorage.getItem('instrutor_online_id');
+  if(!id) return;
   const instrutor = {
-
     id,
-
-    nome:
-      sessionStorage.getItem(
-        'instrutor_online_nome'
-      )
-      || 'Instrutor'
-
+    nome: sessionStorage.getItem('instrutor_online_nome') || 'Instrutor'
   };
-
-
   await abrirArea(instrutor);
-
 })();
-
 </script>
-
-</body>
-</html>
+</body></html>
