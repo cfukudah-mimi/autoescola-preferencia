@@ -168,11 +168,7 @@ async function alterarStatus(id,status){
  await carregarTudo();
 }
 
-async function alterarStatus(id,status){
-  const {error}=await sb.from('agendamentos').update({status,atualizado_em:new Date().toISOString()}).eq('id',id);
-  if(error)return alert('Erro: '+error.message);
-  await carregarTudo();
-}
+
 
 async function criarAgendamentoAdmin(){
   agMsg.innerHTML='';
