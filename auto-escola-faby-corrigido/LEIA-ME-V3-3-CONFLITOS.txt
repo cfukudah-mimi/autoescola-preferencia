@@ -1,0 +1,31 @@
+AUTOESCOLA PREFERÊNCIA — V3.3 TESTE DE CONFLITOS
+
+Objetivo:
+Validar se o sistema evita agendamentos simultâneos indevidos.
+
+TESTE 1 — MESMO INSTRUTOR
+1. Crie uma aula para 14:00 com Carlos.
+2. Tente criar outra aula às 14:00 com Carlos.
+Resultado esperado: combinação não deve ser oferecida.
+
+TESTE 2 — MESMO VEÍCULO
+1. Crie uma aula para 15:00 usando HB20.
+2. Tente criar outra aula às 15:00 usando HB20.
+Resultado esperado: HB20 não deve aparecer como opção naquele horário.
+
+TESTE 3 — MESMO ALUNO
+1. Faça um agendamento para um aluno às 16:00.
+2. Tente agendar o mesmo aluno às 16:00 novamente.
+Resultado esperado: o sistema bloqueia o conflito.
+
+TESTE 4 — BLOQUEIO
+1. Bloqueie Carlos ou um veículo em determinado período.
+2. Tente agendar nesse período.
+Resultado esperado: recurso bloqueado não deve aparecer.
+
+TESTE 5 — AUDITORIA
+No painel administrativo, abra "🧪 Conflitos" e execute a auditoria.
+Resultado esperado: "Nenhum conflito encontrado" quando o sistema estiver consistente.
+
+Observação:
+Esta versão ainda usa localStorage e é somente protótipo.

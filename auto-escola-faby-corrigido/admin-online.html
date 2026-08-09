@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Painel Administrativo Online - Autoescola Preferência</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f6f8;color:#172033}
+header{background:#0b132b;color:#fff;padding:16px}.top{max-width:1180px;margin:auto;display:flex;justify-content:space-between;align-items:center}
+main{max-width:1180px;margin:20px auto;padding:0 15px}.panel,.card{background:#fff;border-radius:14px;padding:18px;box-shadow:0 3px 14px #0001;margin-bottom:15px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.card b{display:block;font-size:28px;margin-top:5px}
+.nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px}button,.btn{border:0;border-radius:8px;padding:9px 12px;font-weight:bold;cursor:pointer;text-decoration:none;display:inline-block}
+.primary{background:#0b132b;color:#fff}.light{background:#eef2f6;color:#172033}.hidden{display:none}.muted{color:#667085}
+input,select{width:100%;padding:10px;border:1px solid #d0d5dd;border-radius:8px;margin-top:5px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.full{grid-column:1/-1}
+table{width:100%;border-collapse:collapse}th,td{padding:10px 8px;border-bottom:1px solid #eee;text-align:left;font-size:14px}th{font-size:12px;color:#667085}
+.ok{background:#e8f7ed;color:#147a35;padding:12px;border-radius:10px}.warn{background:#fff4e5;color:#8a4b00;padding:12px;border-radius:10px}
+@media(max-width:800px){.cards{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}table{display:block;overflow:auto}}
+</style></head><body>
+
+<div id="loginBox" class="panel" style="max-width:440px;margin:55px auto">
+<h2>🔐 Administração Online</h2><p class="muted">Entre com o e-mail e a senha cadastrados no Supabase.</p>
+<label>E-mail<input id="email" type="email"></label><br><br>
+<label>Senha<input id="senha" type="password"></label><br><br>
+<button class="primary" onclick="entrar()">Entrar</button><p id="loginMsg"></p>
+<a href="index.html" class="btn light">Voltar ao site</a>
+</div>
+
+<div id="app" class="hidden">
+<header><div class="top"><strong>🚗 Autoescola Preferência — Painel Online</strong><div><span id="adminNome"></span> <button onclick="sair()">Sair</button></div></div></header>
+<main>
+<div class="nav">
+<button class="primary" onclick="aba('dashboard')">🏠 Dashboard</button>
+<button class="light" onclick="aba('alunos')">👨‍🎓 Alunos</button>
+<button class="light" onclick="aba('instrutores')">👨‍🏫 Instrutores</button>
+<button class="light" onclick="aba('veiculos')">🚗 Veículos</button>
+<button class="light" onclick="aba('agendamentos')">📅 Agendamentos</button>
+<button class="light" onclick="aba('regras')">⚙️ Regras</button>
+</div>
+
+<section id="dashboard">
+<div class="cards">
+<div class="card">👨‍🎓 Alunos<b id="nAlunos">0</b></div>
+<div class="card">👨‍🏫 Instrutores<b id="nInstrutores">0</b></div>
+<div class="card">🚗 Veículos<b id="nVeiculos">0</b></div>
+<div class="card">📅 Agendamentos<b id="nAgendamentos">0</b></div>
+</div>
+<div class="panel"><h2>Status da conexão</h2><div id="statusConexao" class="ok">Conectado ao Supabase.</div></div>
+</section>
+
+<section id="alunos" class="hidden"><div class="panel"><h2>👨‍🎓 Novo aluno</h2>
+<div class="grid">
+<label>Nome<input id="aNome"></label><label>Telefone<input id="aTel"></label>
+<label>Categoria<select id="aCat"><option>B</option><option>A</option><option>AB</option></select></label>
+<label>Status<select id="aStatus"><option>Ativo</option><option>Concluído</option><option>Inativo</option></select></label>
+<button class="primary full" onclick="criarAluno()">Cadastrar no banco</button>
+</div></div><div class="panel"><h2>Alunos no banco</h2><div id="alunosBox"></div></div></section>
+
+<section id="instrutores" class="hidden"><div class="panel"><h2>👨‍🏫 Novo instrutor</h2>
+<div class="grid">
+<label>Nome<input id="iNome"></label><label>Telefone<input id="iTel"></label>
+<label>Categoria<select id="iCat"><option>B</option><option>A</option><option>AB</option></select></label>
+<label>Início<input id="iIni" type="time" value="08:00"></label>
+<label>Fim<input id="iFim" type="time" value="18:00"></label>
+<label>Status<select id="iStatus"><option>Ativo</option><option>Inativo</option></select></label>
+<button class="primary full" onclick="criarInstrutor()">Cadastrar no banco</button>
+</div></div><div class="panel"><h2>Instrutores no banco</h2><div id="instrutoresBox"></div></div></section>
+
+<section id="veiculos" class="hidden"><div class="panel"><h2>🚗 Novo veículo</h2>
+<div class="grid">
+<label>Modelo<input id="vModelo"></label><label>Identificação<input id="vIdent"></label>
+<label>Categoria<select id="vCat"><option>B</option><option>A</option><option>AB</option></select></label>
+<label>Status<select id="vStatus"><option>Disponível</option><option>Manutenção</option><option>Indisponível</option></select></label>
+<button class="primary full" onclick="criarVeiculo()">Cadastrar no banco</button>
+</div></div><div class="panel"><h2>Veículos no banco</h2><div id="veiculosBox"></div></div></section>
+
+<section id="agendamentos" class="hidden"><div class="panel"><h2>📅 Agendamentos no banco</h2><div id="agendamentosBox"></div></div></section>
+<section id="regras" class="hidden"><div class="panel"><h2>⚙️ Regras</h2><div id="regrasBox"></div></div></section>
+</main></div>
+
+<script>
+const SUPABASE_URL = "https://tstxaoxhgdrtdxrnxqiz.supabase.co";
+const SUPABASE_KEY = "sb_publishable_MsvCYm5hhlJkavmyF-hfyA_i5W48a_P";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+function esc(v=''){return String(v).replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]))}
+function aba(id){document.querySelectorAll('main section').forEach(s=>s.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');carregarTudo()}
+async function entrar(){
+ loginMsg.textContent='Entrando...';
+ const {error}=await sb.auth.signInWithPassword({email:email.value.trim(),password:senha.value});
+ if(error){loginMsg.textContent='Erro: '+error.message;loginMsg.style.color='#b42318';return}
+ await validarAdmin();
+}
+async function validarAdmin(){
+ const {data:{user}}=await sb.auth.getUser();
+ if(!user)return;
+ const {data:perfil,error}=await sb.from('perfis').select('nome,tipo,ativo').eq('id',user.id).single();
+ if(error||!perfil||perfil.tipo!=='Administrador'||!perfil.ativo){
+   await sb.auth.signOut();loginMsg.textContent='Este usuário não possui acesso administrativo.';loginMsg.style.color='#b42318';return;
+ }
+ loginBox.classList.add('hidden');app.classList.remove('hidden');adminNome.textContent=perfil.nome;await carregarTudo();
+}
+async function sair(){await sb.auth.signOut();location.href='index.html'}
+async function carregarTudo(){
+ try{
+  const [al,ins,ve,ag,re]=await Promise.all([
+   sb.from('alunos').select('*').order('nome'),
+   sb.from('instrutores').select('*').order('nome'),
+   sb.from('veiculos').select('*').order('modelo'),
+   sb.from('agendamentos').select('*').order('data').order('horario'),
+   sb.from('regras_agendamento').select('*').limit(1)
+  ]);
+  for(const r of [al,ins,ve,ag,re]) if(r.error) throw r.error;
+  nAlunos.textContent=al.data.length;nInstrutores.textContent=ins.data.length;nVeiculos.textContent=ve.data.length;nAgendamentos.textContent=ag.data.length;
+  alunosBox.innerHTML=al.data.length?`<table><tr><th>Nome</th><th>Telefone</th><th>Categoria</th><th>Status</th></tr>${al.data.map(x=>`<tr><td>${esc(x.nome)}</td><td>${esc(x.telefone)}</td><td>${esc(x.categoria)}</td><td>${esc(x.status)}</td></tr>`).join('')}</table>`:'<p class="muted">Nenhum aluno no banco.</p>';
+  instrutoresBox.innerHTML=ins.data.length?`<table><tr><th>Nome</th><th>Telefone</th><th>Categoria</th><th>Horário</th><th>Status</th></tr>${ins.data.map(x=>`<tr><td>${esc(x.nome)}</td><td>${esc(x.telefone||'')}</td><td>${esc(x.categoria)}</td><td>${x.hora_inicio}–${x.hora_fim}</td><td>${esc(x.status)}</td></tr>`).join('')}</table>`:'<p class="muted">Nenhum instrutor no banco.</p>';
+  veiculosBox.innerHTML=ve.data.length?`<table><tr><th>Modelo</th><th>Identificação</th><th>Categoria</th><th>Status</th></tr>${ve.data.map(x=>`<tr><td>${esc(x.modelo)}</td><td>${esc(x.identificacao||'')}</td><td>${esc(x.categoria)}</td><td>${esc(x.status)}</td></tr>`).join('')}</table>`:'<p class="muted">Nenhum veículo no banco.</p>';
+  agendamentosBox.innerHTML=ag.data.length?`<table><tr><th>Data</th><th>Horário</th><th>Tipo</th><th>Status</th></tr>${ag.data.map(x=>`<tr><td>${esc(x.data)}</td><td>${esc(x.horario)}</td><td>${esc(x.tipo)}</td><td>${esc(x.status)}</td></tr>`).join('')}</table>`:'<p class="muted">Nenhum agendamento no banco.</p>';
+  regrasBox.innerHTML=re.data.length?`<p><b>Limite de aulas futuras:</b> ${re.data[0].limite_aulas_futuras}</p><p><b>Aprovação:</b> ${esc(re.data[0].aprovacao)}</p><p><b>Intervalo:</b> ${re.data[0].intervalo_minutos} minutos</p>`:'<p class="muted">Nenhuma regra.</p>';
+ }catch(err){statusConexao.className='warn';statusConexao.textContent='Erro ao carregar dados: '+err.message}
+}
+async function criarAluno(){
+ const {error}=await sb.from('alunos').insert({nome:aNome.value.trim(),telefone:aTel.value.trim(),categoria:aCat.value,status:aStatus.value});
+ if(error)return alert('Erro: '+error.message);aNome.value='';aTel.value='';await carregarTudo();alert('Aluno salvo no banco online.');
+}
+async function criarInstrutor(){
+ const {error}=await sb.from('instrutores').insert({nome:iNome.value.trim(),telefone:iTel.value.trim()||null,categoria:iCat.value,hora_inicio:iIni.value,hora_fim:iFim.value,status:iStatus.value});
+ if(error)return alert('Erro: '+error.message);iNome.value='';iTel.value='';await carregarTudo();alert('Instrutor salvo no banco online.');
+}
+async function criarVeiculo(){
+ const {error}=await sb.from('veiculos').insert({modelo:vModelo.value.trim(),identificacao:vIdent.value.trim()||null,categoria:vCat.value,status:vStatus.value});
+ if(error)return alert('Erro: '+error.message);vModelo.value='';vIdent.value='';await carregarTudo();alert('Veículo salvo no banco online.');
+}
+(async()=>{const {data:{session}}=await sb.auth.getSession();if(session)await validarAdmin()})();
+</script></body></html>

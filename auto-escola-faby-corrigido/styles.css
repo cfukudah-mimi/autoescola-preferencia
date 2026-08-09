@@ -1,0 +1,135 @@
+/* Configurações Gerais e Fundo */
+body {
+  font-family: Arial, sans-serif;
+  background: radial-gradient(circle, #2a2a2a 0%, #111111 100%);
+  color: #ffffff;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* Container que centraliza o conteúdo estilo celular na tela */
+.main-container {
+  width: 100%;
+  max-width: 500px;
+  padding: 30px 20px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+/* Cabeçalho e Títulos */
+header h1 {
+  font-size: 24px;
+  color: #ffffff;
+  margin: 10px 0 5px 0;
+  font-weight: bold;
+}
+
+header p {
+  font-size: 14px;
+  color: #cccccc;
+  margin: 0 0 25px 0;
+}
+
+/* Links de Navegação/Botões */
+.menu-links {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.btn-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+  font-size: 16px;
+  font-weight: bold;
+  text-decoration: none;
+  border-radius: 50px; /* Deixa o botão bem arredondado igual à imagem */
+  transition: transform 0.2s, opacity 0.2s;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.btn-link:hover {
+  transform: scale(1.02);
+  opacity: 0.9;
+}
+
+/* Cores específicas de cada botão baseado na sua imagem */
+.btn-whatsapp {
+  background-color: #2ecc71;
+  color: #ffffff;
+}
+
+.btn-aula {
+  background-color: #e67e22;
+  color: #ffffff;
+}
+
+.btn-aluno {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.btn-dicas {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.btn-chegar {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+/* Ícones de Redes Sociais */
+.social-icons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin: 20px 0 30px 0;
+}
+
+.social-icons a {
+  display: inline-block;
+  background-color: #ffffff;
+  color: #000000;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  border-radius: 50%;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+/* Rodapé / Informações de Endereço */
+footer {
+  background-color: rgba(0, 0, 0, 0.4);
+  padding: 20px;
+  border-radius: 15px;
+  text-align: left;
+  font-size: 13px;
+  line-height: 1.6;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+footer h4 {
+  margin: 0 0 10px 0;
+  color: #ffcc00;
+}
+
+footer p {
+  margin: 5px 0;
+}
+
+.copyright {
+  text-align: center;
+  font-size: 11px;
+  color: #777777;
+  margin-top: 20px;
+}
