@@ -163,9 +163,101 @@ async function carregarTudo(){
  }catch(err){statusConexao.className='warn';statusConexao.textContent='Erro ao carregar dados: '+err.message}
 }
 async function alterarStatus(id,status){
- const {error}=await sb.from('agendamentos').update({status,atualizado_em:new Date().toISOString()}).eq('id',id);
- if(error)return alert('Erro: '+error.message);
- await carregarTudo();
+
+  // Busca os dados do agendamento
+  const {data:ag,error:erroBusca} = await sb
+    .from('agendamentos')
+    .select('id,aluno_id,instrutor_id,veiculo_id,data,horario,tipo,status')
+    .eq('id',id)
+    .single();
+
+  if(erroBusca){
+    alert('Erro ao localizar agendamento: '+erroBusca.message);
+    return;
+  }
+
+  // Atualiza o status
+  const {error} = await sb
+    .from('agendamentos')
+    .update({
+      status,
+      atualizado_em:new Date().toISOString()
+    })
+    .eq('id',id);
+
+  if(error){
+    alert('Erro: '+error.message);
+    return;
+  }
+
+  // Quando clicar em APROVAR
+  if(status === 'Confirmada'){
+
+    const [alunoResp,instrutorResp,veiculoResp] = await Promise.all([
+
+      sb.from('alunos')
+        .select('nome,telefone')
+        .eq('id',ag.aluno_id)
+        .single(),
+
+      sb.from('instrutores')
+        .select('nome')
+        .eq('id',ag.instrutor_id)
+        .single(),
+
+      sb.from('veiculos')
+        .select('modelo')
+        .eq('id',ag.veiculo_id)
+        .single()
+
+    ]);
+
+    const aluno = alunoResp.data;
+    const instrutor = instrutorResp.data;
+    const veiculo = veiculoResp.data;
+
+    if(aluno && aluno.telefone){
+
+      let telefone = String(aluno.telefone).replace(/\D/g,'');
+
+      if(!telefone.startsWith('55')){
+        telefone = '55' + telefone;
+      }
+
+      const partes = String(ag.data).split('-');
+
+      const dataBR =
+        partes.length === 3
+        ? `${partes[2]}/${partes[1]}/${partes[0]}`
+        : ag.data;
+
+      const horario = String(ag.horario || '').slice(0,5);
+
+      const mensagem =
+`🚗 *Autoescola Preferência*
+
+Olá, ${aluno.nome}! 😊
+
+Seu agendamento foi *CONFIRMADO*.
+
+📅 Data: ${dataBR}
+🕐 Horário: ${horario}
+👩‍🏫 Instrutor(a): ${instrutor?.nome || 'A definir'}
+🚘 Veículo: ${veiculo?.modelo || 'A definir'}
+📚 Aula: ${ag.tipo || 'Aula prática'}
+
+✅ Sua aula está confirmada.
+
+Em caso de dúvida ou necessidade de alteração, entre em contato com a autoescola.`;
+
+      const link =
+        `https://wa.me/${telefone}?text=${encodeURIComponent(mensagem)}`;
+
+      window.open(link,'_blank');
+    }
+  }
+
+  await carregarTudo();
 }
 
 
