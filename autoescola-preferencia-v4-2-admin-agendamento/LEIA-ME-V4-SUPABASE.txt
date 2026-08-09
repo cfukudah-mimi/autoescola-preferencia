@@ -1,0 +1,12 @@
+AUTOESCOLA PREFERÊNCIA — V4 SUPABASE ADMIN
+
+1. Hospede o ZIP/pasta em HTTPS (TinyHost serve para teste).
+2. Abra Administração Online.
+3. Entre com o e-mail e a senha criados no Supabase Auth.
+4. O painel valida o perfil Administrador na tabela perfis.
+5. Cadastre aluno, instrutor e veículo.
+6. Confira no Table Editor do Supabase se os registros aparecem.
+
+Esta V4 conecta o painel administrativo básico ao banco online.
+Agendamento do aluno e login do instrutor ainda serão migrados na próxima etapa.
+A Secret Key NÃO está no site.
