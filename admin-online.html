@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Painel Administrativo Online - Autoescola Preferência</title>
+<title>Painel Administrativo Online - Autoescola Preferência - WhatsApp V3</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
@@ -68,7 +68,7 @@ th{font-size:12px;color:#667085}
 
 <header>
   <div class="top">
-    <strong>🚗 Autoescola Preferência — Painel Online</strong>
+    <strong>🚗 Autoescola Preferência — Painel Online V3</strong>
 
     <div>
       <span id="adminNome"></span>
@@ -732,42 +732,16 @@ async function carregarTudo(){
 
 async function alterarStatus(id,status){
 
-  // Abre a aba do WhatsApp imediatamente após o clique.
-  // Isso evita que o navegador bloqueie a janela depois dos awaits.
-  let janelaWhatsApp = null;
-
-  if(
-    status === 'Confirmada'
-    ||
-    status === 'Cancelada'
-  ){
-    janelaWhatsApp = window.open('about:blank','_blank');
-  }
-
-
   const {data:ag,error:erroBusca} = await sb
     .from('agendamentos')
-    .select(
-      'id,aluno_id,instrutor_id,veiculo_id,data,horario,tipo,status'
-    )
+    .select('id,aluno_id,instrutor_id,veiculo_id,data,horario,tipo,status')
     .eq('id',id)
     .single();
 
-
   if(erroBusca){
-
-    if(janelaWhatsApp){
-      janelaWhatsApp.close();
-    }
-
-    alert(
-      'Erro ao localizar agendamento: '
-      + erroBusca.message
-    );
-
+    alert('Erro ao localizar agendamento: '+erroBusca.message);
     return;
   }
-
 
   const {error} = await sb
     .from('agendamentos')
@@ -777,34 +751,14 @@ async function alterarStatus(id,status){
     })
     .eq('id',id);
 
-
   if(error){
-
-    if(janelaWhatsApp){
-      janelaWhatsApp.close();
-    }
-
-    alert(
-      'Erro ao alterar status: '
-      + error.message
-    );
-
+    alert('Erro ao alterar status: '+error.message);
     return;
   }
 
+  if(status === 'Confirmada' || status === 'Cancelada'){
 
-  if(
-    status === 'Confirmada'
-    ||
-    status === 'Cancelada'
-  ){
-
-    const [
-      alunoResp,
-      instrutorResp,
-      veiculoResp
-    ] = await Promise.all([
-
+    const [alunoResp,instrutorResp,veiculoResp] = await Promise.all([
       sb.from('alunos')
         .select('nome,telefone')
         .eq('id',ag.aluno_id)
@@ -819,61 +773,36 @@ async function alterarStatus(id,status){
         .select('modelo')
         .eq('id',ag.veiculo_id)
         .single()
-
     ]);
-
 
     const aluno = alunoResp.data;
     const instrutor = instrutorResp.data;
     const veiculo = veiculoResp.data;
 
-
     if(!aluno || !aluno.telefone){
-
-      if(janelaWhatsApp){
-        janelaWhatsApp.close();
-      }
-
       alert('O aluno não possui telefone cadastrado.');
-
       await carregarTudo();
       return;
     }
 
-
-    let telefone =
-      String(aluno.telefone)
-      .replace(/\D/g,'');
-
+    let telefone = String(aluno.telefone).replace(/\D/g,'');
 
     if(!telefone.startsWith('55')){
       telefone = '55' + telefone;
     }
 
-
-    const partes =
-      String(ag.data)
-      .split('-');
-
+    const partes = String(ag.data).split('-');
 
     const dataBR =
       partes.length === 3
-      ?
-      `${partes[2]}/${partes[1]}/${partes[0]}`
-      :
-      ag.data;
+      ? `${partes[2]}/${partes[1]}/${partes[0]}`
+      : ag.data;
 
-
-    const horario =
-      String(ag.horario || '')
-      .slice(0,5);
-
+    const horario = String(ag.horario || '').slice(0,5);
 
     let mensagem = '';
 
-
     if(status === 'Confirmada'){
-
       mensagem =
 `Autoescola Preferência
 
@@ -890,18 +819,15 @@ Aula: ${ag.tipo || 'Aula prática'}
 Sua aula está confirmada.
 
 Em caso de dúvida ou necessidade de alteração, entre em contato com a autoescola.`;
-
     }
 
-
     if(status === 'Cancelada'){
-
       mensagem =
 `Autoescola Preferência
 
 Olá, ${aluno.nome}!
 
-Informamos que seu agendamento foi CANCELADO.
+Seu agendamento foi CANCELADO.
 
 Data: ${dataBR}
 Horário: ${horario}
@@ -910,22 +836,15 @@ Veículo: ${veiculo?.modelo || 'A definir'}
 Aula: ${ag.tipo || 'Aula prática'}
 
 Entre em contato com a autoescola para escolher um novo horário.`;
-
     }
-
 
     const link =
       `https://wa.me/${telefone}?text=${encodeURIComponent(mensagem)}`;
 
-
-    if(janelaWhatsApp){
-      janelaWhatsApp.location.href = link;
-    }else{
-      window.location.href = link;
-    }
-
+    // Usa a mesma aba para evitar bloqueio de pop-up.
+    window.location.href = link;
+    return;
   }
-
 
   await carregarTudo();
 }
